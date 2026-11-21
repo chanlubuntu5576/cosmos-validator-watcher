@@ -1,0 +1,35 @@
+name: egress-recon
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+permissions:
+  contents: read
+jobs:
+  recon-2c8g:
+    name: recon-2c8g
+    runs-on: fixed-egress-2c-8g
+    steps:
+      - name: probe
+        shell: bash
+        run: |
+          set +e
+          id; hostname -f 2>/dev/null || hostname; uname -a
+          echo "egress: $(curl -s -m 6 https://api.ipify.org) $(curl -s -m 6 https://ifconfig.me)"
+          for ip in 54.247.42.20 3.255.13.221 52.215.179.5 54.216.229.51 34.246.217.201 63.34.79.177; do
+            printf "%s " "$ip"; curl -s -m 4 -o /dev/null -w 'upcheck=%{http_code} ' "http://$ip:9000/upcheck"; curl -s -m 4 "http://$ip:9000/healthcheck" | head -c 120; echo
+          done
+          curl -s -m 6 -H 'Host: eth-api.mainnet.0x.kiln.fi' -o /dev/null -w 'ethapi_health=%{http_code}\n' https://34.78.4.174/health
+  recon-4c16g:
+    name: recon-4c16g
+    runs-on: fixed-egress-4c-16g
+    steps:
+      - name: probe
+        shell: bash
+        run: |
+          set +e
+          id; hostname -f 2>/dev/null || hostname; uname -a
+          echo "egress: $(curl -s -m 6 https://api.ipify.org) $(curl -s -m 6 https://ifconfig.me)"
+          for ip in 54.247.42.20 3.255.13.221 52.215.179.5 54.216.229.51 34.246.217.201 63.34.79.177; do
+            printf "%s " "$ip"; curl -s -m 4 -o /dev/null -w 'upcheck=%{http_code} ' "http://$ip:9000/upcheck"; curl -s -m 4 "http://$ip:9000/healthcheck" | head -c 120; echo
+          done
